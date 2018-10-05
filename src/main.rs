@@ -139,6 +139,9 @@ impl Renderable<Model> for Model {
                             { view_sidebar_tab("All") }
                             { view_sidebar_tab("Open") }
                             { view_sidebar_tab("Close") }
+                            <li class="navigation__item js-show-all",>
+                                <button onclick=|_| Msg::GetIssues,>{ "fetch issues" }</button>
+                            </li>
                         </ul>
                     </nav>
                 </aside>
@@ -150,7 +153,6 @@ impl Renderable<Model> for Model {
                 </div>
             </div>
             // <input type="text", oninput=|e| Msg::GotInput(e.value),></input>
-            <button onclick=|_| Msg::GetIssues,>{ "fetch issues" }</button>
         }
     }
 }
