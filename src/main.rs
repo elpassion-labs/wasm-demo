@@ -3,8 +3,6 @@ extern crate failure;
 #[macro_use]
 extern crate serde_derive;
 #[macro_use]
-extern crate stdweb;
-#[macro_use]
 extern crate yew;
 
 use failure::Error;
@@ -66,8 +64,6 @@ enum Msg {
 }
 
 impl Component for Model {
-    // Some details omitted. Explore the examples to see more.
-
     type Message = Msg;
     type Properties = ();
 
@@ -89,7 +85,6 @@ impl Component for Model {
             }
 
             Msg::IssuesReady(Ok(issues)) => {
-                // pass
                 self.issues = issues;
             }
 
@@ -105,19 +100,48 @@ impl Component for Model {
     }
 }
 
+fn view_sidebar_tab(text: &str) -> Html<Model> {
+    html! {
+        <li class="navigation__item js-show-all",>
+            <img src="./icon-github.svg", class="navigation__icon", />
+            <div class="navigation__text",>{ text }</div>
+        </li>
+    }
+}
+
 impl Renderable<Model> for Model {
     fn view(&self) -> Html<Self> {
         let view_issue = |issue: &Issue| html! {
-            <li class=&issue.state,>
-                { &issue.title }
+            <li class="list__item",>
+              <p class="list__item__title",>{ &issue.title }</p>
             </li>
         };
+
         html! {
-            // Render your model here
-            <h1>{ "Issues:" }</h1>
-            <ul>
-                { for self.issues.iter().map(view_issue) }
-            </ul>
+            <div class="background",></div>
+            <div class="app",>
+                <aside class="app__sider",>
+                    <div class="window-buttons",>
+                        <button class="window-buttons__button window-buttons__button--close",></button>
+                        <button class="window-buttons__button window-buttons__button--minimize",></button>
+                        <button class="window-buttons__button window-buttons__button--maximize",></button>
+                    </div>
+
+                    <nav class="navigation js-nav",>
+                        <ul class="navigation__wrapper",>
+                            { view_sidebar_tab("All") }
+                            { view_sidebar_tab("Open") }
+                            { view_sidebar_tab("Close") }
+                        </ul>
+                    </nav>
+                </aside>
+
+                <div class="app__content",>
+                    <ul class="list",>
+                        { for self.issues.iter().map(view_issue) }
+                    </ul>
+                </div>
+            </div>
             <button onclick=|_| Msg::GetIssues,>{ "Click me!" }</button>
         }
     }
