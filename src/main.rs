@@ -32,8 +32,8 @@ impl GithubService {
         }
     }
 
-    pub fn get_issues(&mut self, callback: Callback<IssuesResult>) -> FetchTask {
-        let url = format!("https://api.github.com/repos/{}/issues?state=all", "DenisKolodin/yew");
+    pub fn get_issues(&mut self, repo: String, callback: Callback<IssuesResult>) -> FetchTask {
+        let url = format!("https://api.github.com/repos/{}/issues?state=all", repo);
 
         let handler = move |response: Response<Json<IssuesResult>>| {
             let (meta, Json(data)) = response.into_parts();
@@ -56,11 +56,13 @@ struct Model {
     issues: Vec<Issue>,
     issues_callback: Callback<IssuesResult>,
     task: Option<FetchTask>,
+    repo: String,
 }
 
 enum Msg {
     GetIssues,
     IssuesReady(IssuesResult),
+    GotInput(String),
 }
 
 impl Component for Model {
@@ -73,13 +75,14 @@ impl Component for Model {
             issues: Vec::<Issue>::new(),
             issues_callback: link.send_back(Msg::IssuesReady),
             task: None,
+            repo: "DenisKolodin/yew".into(),
         }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::GetIssues => {
-                let task = self.github_service.get_issues(self.issues_callback.clone());
+                let task = self.github_service.get_issues(self.repo.clone(), self.issues_callback.clone());
                 self.task = Some(task);
 
             }
@@ -92,6 +95,10 @@ impl Component for Model {
                 let mut gh_issues = Vec::<Issue>::new();
                 gh_issues.push(Issue { title: "Error".to_string(), state: "closed".to_string()});
                 self.issues = gh_issues;
+            }
+
+            Msg::GotInput(value) => {
+                self.repo = value
             }
         }
 
@@ -118,7 +125,7 @@ impl Renderable<Model> for Model {
         };
 
         html! {
-            <div class="background",></div>
+            // <div class="background",></div>
             <div class="app",>
                 <aside class="app__sider",>
                     <div class="window-buttons",>
@@ -142,7 +149,8 @@ impl Renderable<Model> for Model {
                     </ul>
                 </div>
             </div>
-            <button onclick=|_| Msg::GetIssues,>{ "Click me!" }</button>
+            // <input type="text", oninput=|e| Msg::GotInput(e.value),></input>
+            <button onclick=|_| Msg::GetIssues,>{ "fetch issues" }</button>
         }
     }
 }
